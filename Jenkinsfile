@@ -6,6 +6,10 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_Secret_Key')
     }
 
+    parameters {
+        string(name: 'ACTION', defaultValue: 'Apply', description: 'Terraform Action')
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -30,28 +34,28 @@ pipeline {
         }
 
         stage('Ansible Playbook') {
-      when {
-        expression { params.ACTION == 'Apply' }
-      }
-      steps {
-        sshagent(['aws-ssh']) {
-          script {
-            def public_ip = sh(
-              script: 'terraform -chdir=terraform output -raw public_ip',
-              returnStdout: true
-            ).trim()
-
-            writeFile file: 'ansible/inventory.ini', text: """
-              [ec2]
-              ${public_ip} ansible_user=ubuntu
-            """
-
-            dir('ansible') {
-            sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml'
+            when {
+                expression { params.ACTION == 'Apply' }
             }
-          }
-        }
-      }
-    }
-  }
+            steps {
+                sshagent(['aws-ssh']) {
+                    script {
+                        def public_ip = sh(
+                            script: 'terraform -chdir=terraform output -raw public_ip',
+                            returnStdout: true
+                        ).trim()
 
+                        writeFile file: 'ansible/inventory.ini', text: """
+[ec2]
+${public_ip} ansible_user=ubuntu
+"""
+
+                        dir('ansible') {
+                            sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml'
+                        }
+                    }
+                }
+            }
+        }
+    } 
+}     
