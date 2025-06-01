@@ -1,0 +1,12 @@
+- name: Run hello script on EC2
+  hosts: web
+  become: yes
+  tasks:
+    - name: Upload script
+      copy:
+        src: script.sh
+        dest: /tmp/script.sh
+        mode: '0755'
+
+    - name: Run script
+      shell: /tmp/script.sh
