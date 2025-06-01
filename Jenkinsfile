@@ -38,7 +38,7 @@ pipeline {
                 expression { params.ACTION == 'Apply' }
             }
             steps {
-                sshagent(['ec2-ssh']) {
+                sshagent(['aws-ssh']) {
                     script {
                         def public_ip = sh(
                             script: 'terraform -chdir=terraform output -raw public_ip',
@@ -56,5 +56,5 @@ ${public_ip} ansible_user=ec2-user
                 }
             }
         }
-    } // <-- Closing brace for 'stages'
-} // <-- Closing brace for 'pipeline'
+    } 
+} 
