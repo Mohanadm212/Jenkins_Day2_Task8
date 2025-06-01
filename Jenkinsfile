@@ -29,38 +29,29 @@ pipeline {
             }
         }
 
-        stage('Prepare for Ansible') {
-            steps {
-                script {
-                    def public_ip = sh(script: "terraform output -raw public_ip", returnStdout: true).trim()
+        stage('Ansible Playbook') {
+      when {
+        expression { params.ACTION == 'Apply' }
+      }
+      steps {
+        sshagent(['aws-ssh']) {
+          script {
+            def public_ip = sh(
+              script: 'terraform -chdir=terraform output -raw public_ip',
+              returnStdout: true
+            ).trim()
 
-                    writeFile file: 'ansible/inventory.ini', text: """
-[web]
-${public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem
-"""
+            writeFile file: 'ansible/inventory.ini', text: """
+              [ec2]
+              ${public_ip} ansible_user=ubuntu
+            """
 
-                    sh """
-                        mkdir -p /var/jenkins_home/.ssh
-                        ssh-keyscan -H ${public_ip} >> /var/jenkins_home/.ssh/known_hosts
-                        chmod 600 /var/jenkins_home/lab1-kp.pem
-                    """
-                }
+            dir('ansible') {
+            sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml'
             }
+          }
         }
-
-        stage('Wait for EC2 Ready') {
-            steps {
-                echo 'Waiting 150 seconds for instance to be SSH-ready...'
-                sh 'sleep 60'
-            }
-        }
-
-        stage('Run Ansible Playbook') {
-            steps {
-                dir('ansible') {
-                    sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml'
-                }
-            }
-        }
+      }
     }
-}
+  }
+
