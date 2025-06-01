@@ -9,26 +9,25 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/your-repo/ec2-ansible-pipeline.git' 
+                git url: 'https://github.com/Mohanadm212/Jenkins_Day2_Task8.git' 
             }
         }
 
         stage('Terraform Init') {
             steps {
-                    sh 'terraform init'
+                sh 'terraform init'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                    sh """
-                      terraform apply -auto-approve \
-                        -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
-                        -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}'
+                sh """
+                    terraform apply -auto-approve \
+                      -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
+                      -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}'
                     """
-                }
             }
-        
+        }
 
         stage('Wait for EC2 Ready') {
             steps {
@@ -38,22 +37,22 @@ pipeline {
         }
 
         stage('Run Ansible Playbook') {
-    steps {
-        dir('ansible') {
-            sh 'ansible-playbook -i inventory.ini playbook.yml'
+            steps {
+                dir('ansible') {
+                    sh 'ansible-playbook -i inventory.ini playbook.yml'
+                }
+            }
         }
     }
-}
 
     post {
         always {
             echo 'Destroying infrastructure...'
-                sh """
-                  terraform destroy -auto-approve \
-                    -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
-                    -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}'
+            sh """
+                terraform destroy -auto-approve \
+                  -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
+                  -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}'
                 """
-            
         }
     }
 }
