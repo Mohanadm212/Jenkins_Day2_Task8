@@ -37,6 +37,10 @@ resource "aws_instance" "web" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory '${aws_instance.web.public_ip},' /var/jenkins_home/workspace/Day2-Task8/ansible/playbook.yml --private-key /var/jenkins_home/lab1-kp.pem --user ubuntu"
-  }
+  command = <<EOT
+    echo "[web]" > /var/jenkins_home/workspace/Day2-Task8/ansible/inventory.ini
+    echo "${aws_instance.web.public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem" >> /var/jenkins_home/workspace/Day2-Task8/ansible/inventory.ini
+EOT
+}
+
 }
