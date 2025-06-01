@@ -46,7 +46,7 @@ pipeline {
                         ).trim()
 
                         writeFile file: 'ansible/inventory.ini', text: """[web]
-${public_ip} ansible_user=ubuntu
+${public_ip} ansible_user=ubuntu ansible_ssh_private_key_file='/var/jenkins_home/lab1-kp.pem'
 """
 
                         dir('ansible') {
