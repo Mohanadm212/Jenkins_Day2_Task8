@@ -1,0 +1,40 @@
+- hosts: ec2
+  become: true
+  tasks:
+    - name: Update yum packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Apache (httpd)
+      yum:
+        name: httpd
+        state: present
+
+    - name: Create a custom HTML page
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head>
+            <title>Welcome</title>
+            <style>
+              body {
+                background-color: red;
+                color: white;
+                font-size: 24px;
+                text-align: center;
+                padding-top: 20%;
+              }
+            </style>
+          </head>
+          <body>
+            Hello from Abdo!
+          </body>
+          </html>
+
+    - name: Ensure Apache is started and enabled
+      service:
+        name: httpd
+        state: started
+        enabled: true
