@@ -34,27 +34,27 @@ pipeline {
         }
 
         stage('Ansible Playbook') {
-            when {
-                expression { params.ACTION == 'Apply' }
-            }
-            steps {
-                sshagent(['aws-ssh']) {
-                    script {
-                        def public_ip = sh(
-                            script: 'terraform output -raw public_ip',
-                            returnStdout: true
-                        ).trim()
+      when {
+        expression { params.ACTION == 'Apply' }
+      }
+      steps {
+        sshagent(['ec2-ssh']) {
+          script {
+            def public_ip = sh(
+              script: 'terraform -chdir=terraform output -raw public_ip',
+              returnStdout: true
+            ).trim()
 
-                        writeFile file: 'ansible/inventory.ini', text: """[web]
-${public_ip} ansible_user=ubuntu ansible_ssh_private_key_file='/var/jenkins_home/lab1-kp.pem'
-"""
+            writeFile file: 'ansible/inventory.ini', text: """
+              [ec2]
+              ${public_ip} ansible_user=ec2-user
+            """
 
-                        dir('ansible') {
-                            sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml'
-                        }
-                    }
-                }
+            dir('ansible') {
+            sh 'ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.ini playbook.yml'
             }
+          }
         }
+      }
     }
-}
+  }
