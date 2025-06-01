@@ -45,7 +45,7 @@ pipeline {
                             returnStdout: true
                         ).trim()
 
-                        writeFile file: 'ansible/inventory.ini', text: """[ec2]
+                        writeFile file: 'ansible/inventory.ini', text: """[web]
 ${public_ip} ansible_user=ubuntu
 """
 
