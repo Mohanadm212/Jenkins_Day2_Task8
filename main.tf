@@ -37,6 +37,6 @@ resource "aws_instance" "web" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory '${aws_instance.web.public_ip},' playbook.yml --private-key /var/jenkins_home/lab1-key.pem --user ubuntu"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory '${aws_instance.web.public_ip},' ./ansible/playbook.yml --private-key /var/jenkins_home/lab1-key.pem --user ubuntu"
   }
 }
