@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Mohanadm212/Jenkins_Day2_Task8.git' 
+                git branch: 'main', url: 'https://github.com/Mohanadm212/Jenkins_Day2_Task8.git'
             }
         }
 
@@ -46,7 +46,7 @@ pipeline {
                         ).trim()
 
                         writeFile file: 'ansible/inventory.ini', text: """[ec2]
-${public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem
+${public_ip} ansible_user=ubuntu
 """
 
                         dir('ansible') {
