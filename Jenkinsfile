@@ -25,11 +25,11 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                sh """
+                sh '''
                     terraform apply -auto-approve \
-                      -var 'aws_access_key=${AWS_ACCESS_KEY_ID}' \
-                      -var 'aws_secret_key=${AWS_SECRET_ACCESS_KEY}'
-                """
+                      -var "aws_access_key=${AWS_ACCESS_KEY_ID}" \
+                      -var "aws_secret_key=${AWS_SECRET_ACCESS_KEY}"
+                '''
             }
         }
 
@@ -40,13 +40,15 @@ pipeline {
             steps {
                 sshagent(['aws-ssh']) {
                     script {
+                        // FIXED: removed `-chdir=terraform`
                         def public_ip = sh(
-                            script: 'terraform -chdir=terraform output -raw public_ip',
+                            script: 'terraform output -raw public_ip',
                             returnStdout: true
                         ).trim()
 
+                        // Write inventory file for Ansible
                         writeFile file: 'ansible/inventory.ini', text: """[ec2]
-${public_ip} ansible_user=ec2-user
+${public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem
 """
 
                         dir('ansible') {
@@ -56,5 +58,5 @@ ${public_ip} ansible_user=ec2-user
                 }
             }
         }
-    } 
-} 
+    }
+}
