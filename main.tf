@@ -35,10 +35,8 @@ resource "aws_instance" "web" {
   tags = {
     Name = "Task8-instance"
   }
+}
 
-  provisioner "local-exec" {
-    echo "[ec2]" > /var/jenkins_home/workspace/Day2-Task8/ansible/inventory.ini
-echo "${aws_instance.web.public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem" >> /var/jenkins_home/workspace/Day2-Task8/ansible/inventory.ini
-
-  }
+output "public_ip" {
+  value = aws_instance.web.public_ip
 }
