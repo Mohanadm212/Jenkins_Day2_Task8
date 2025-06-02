@@ -40,13 +40,11 @@ pipeline {
             steps {
                 sshagent(['aws-ssh']) {
                     script {
-                        // FIXED: removed `-chdir=terraform`
                         def public_ip = sh(
                             script: 'terraform output -raw public_ip',
                             returnStdout: true
                         ).trim()
 
-                        // Write inventory file for Ansible
                         writeFile file: 'ansible/inventory.ini', text: """[ec2]
 ${public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem
 """
