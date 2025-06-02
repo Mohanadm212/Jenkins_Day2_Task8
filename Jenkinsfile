@@ -48,7 +48,7 @@ pipeline {
 
                         // Write inventory file for Ansible
                         writeFile file: 'ansible/inventory.ini', text: """[ec2]
-${public_ip} ansible_user=ec2-user ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem
+${public_ip} ansible_user=ubuntu ansible_ssh_private_key_file=/var/jenkins_home/lab1-kp.pem
 """
 
                         dir('ansible') {
